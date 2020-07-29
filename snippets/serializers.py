@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from snippets.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializerOld(serializers.ModelSerializer):
     snippets = serializers.PrimaryKeyRelatedField(
         queryset=Snippet.objects.all(), many=True
     )
@@ -14,7 +14,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'snippets',)
 
 
-class SnippetSerializer(serializers.Serializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    snippets = serializers.HyperlinkedRelatedField(
+        many=True, view_name='snippet-detail', read_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = ('url', 'id', 'username', 'snippets')
+
+
+class SnippetSerializerOld(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     owner = serializers.ReadOnlyField(source='owner.username')
     title = serializers.CharField(
@@ -36,3 +46,17 @@ class SnippetSerializer(serializers.Serializer):
         instance.style = validated_data.get('style', instance.style)
         instance.save()
         return instance
+
+
+class SnippetSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    highlight = serializers.HyperlinkedIdentityField(
+        view_name='snippet-highlight', format='html'
+    )
+
+    class Meta:
+        model = Snippet
+        fields = (
+            'url', 'id', 'highlight', 'owner', 'title',
+            'code', 'linenos', 'language', 'style'
+        )
