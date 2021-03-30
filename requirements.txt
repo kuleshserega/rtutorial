@@ -22,7 +22,7 @@ pep517==0.8.2
 pluggy==0.13.1
 progress==1.5
 py==1.9.0
-Pygments==2.6.1
+Pygments==2.7.4
 pyparsing==2.4.6
 pytest==6.0.1
 pytoml==0.1.21
